@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional, Dict
+from mangum import Mangum
 
 class Goods(BaseModel):
     id: int
@@ -32,3 +33,4 @@ def get_details(id: int):
     if id not in products:
         raise HTTPException(status_code=404, detail="Id not found in database")
     return products[id]
+handler = Mangum(app
