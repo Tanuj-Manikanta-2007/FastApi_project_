@@ -1,25 +1,34 @@
-import fastapi
-import pydantic 
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from typing import Optional, Dict
 
-app = fastapi.FastAPI()
-users = {}
-class storage(pydantic.BaseModel):
-  id : str
-  name : str
-  email : str
-  age : int
-  
-@app.post('/add')
-def new_dict(user : storage):
-  if user.id in users:
-    raise fastapi.HTTPException(statuc_code = 400,detail = "User ID already exists")
-  users[user.id] = {
-    "name" : user.name,
-    "email" : user.email,
-    "age" : user.age
-  }
-  return {"message" : "User added successfull", "user" : users[user.id]}
-@app.get('/all_users')
-def all_user_data():
-  for i in users:
-    return {"users" : users }
+class Goods(BaseModel):
+    id: int
+    name: str
+    price: float
+
+class Worker(BaseModel):
+    id: int
+    name: str
+    price: float
+    discounted_price: Optional[float] = None
+    internal_retailers_details: str
+
+products: Dict[int, Worker] = {}
+retails: Dict[int, Worker] = {}
+
+app = FastAPI()
+
+@app.post('/products/', response_model=Goods)
+def add_product_goods(work: Worker):
+    if work.id in products:
+        raise HTTPException(status_code=400, detail="Product with this id already exists")
+    products[work.id] = work
+    retails[work.id] = work
+    return work
+
+@app.get('/products_details/{id}', response_model=Goods)
+def get_details(id: int):
+    if id not in products:
+        raise HTTPException(status_code=404, detail="Id not found in database")
+    return products[id]
