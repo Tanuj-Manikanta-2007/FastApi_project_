@@ -33,4 +33,5 @@ def get_details(id: int):
     if id not in products:
         raise HTTPException(status_code=404, detail="Id not found in database")
     return products[id]
-handler = Mangum(app
+handler = Mangum(app)
+
